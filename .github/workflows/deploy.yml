@@ -1,0 +1,42 @@
+name: Deploy Fullstack Blog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Step 1 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Step 2 Login to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Step 3 Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Step 4 Build Backend Docker Image
+        run: |
+          docker build -t blog-backend ./server
+          docker tag blog-backend:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/blog-backend:latest
+
+      - name: Step 5 Push Backend Image
+        run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/blog-backend:latest
+
+      - name: Step 6 Build Frontend Image
+        run: |
+          docker build -t blog-frontend ./client
+          docker tag blog-frontend:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/blog-frontend:latest
+
+      - name: Step 7 Push Frontend Image
+        run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/blog-frontend:latest
