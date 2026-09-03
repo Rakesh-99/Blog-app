@@ -1,256 +1,282 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { Table, Toast } from "flowbite-react";
 import { NavLink } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import { PiSmileySad } from "react-icons/pi";
+import { HiOutlinePencil, HiOutlineTrash, HiLockClosed } from "react-icons/hi2";
 
 const AllBlogs = () => {
-    const { user } = useSelector((state) => state.userSliceApp);
-    const { theme } = useSelector((state) => state.themeSliceApp);
-    const [userBlogs, setUserBlogs] = useState([]);
-    const [showMoreButton, setShowMoreButton] = useState(false);
-    const [blogModal, setBlogModal] = useState(false);
-    const [blogId, setBlogId] = useState("");
-    const [loader, setLoader] = useState(false);
-    const [page, setPage] = useState(2);
+  const { user } = useSelector((state) => state.userSliceApp);
+  const { theme } = useSelector((state) => state.themeSliceApp);
+  const isDark = theme === "dark";
 
-    // Get blogs fetch api :
-    useEffect(() => {
-        if (user.isAdmin) {
-            const getBlogs = async () => {
-                setLoader(true);
-                try {
-                    const fetchBlogs = await axios.get(
-                        `/api/blog/get-all-blogs?userId=${user._id}`
-                    );
+  const [userBlogs, setUserBlogs] = useState([]);
+  const [showMoreButton, setShowMoreButton] = useState(false);
+  const [blogModal, setBlogModal] = useState(false);
+  const [blogId, setBlogId] = useState("");
+  const [loader, setLoader] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(2);
 
-                    if (fetchBlogs.status === 200) {
-                        setLoader(false);
-                        setUserBlogs(fetchBlogs.data.blogs);
-
-                        if (fetchBlogs.data.blogs) {
-                            if (fetchBlogs.data.blogs.length > 5) {
-                                setShowMoreButton(true);
-                            } else {
-                                setShowMoreButton(false);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    setLoader(false);
-                    toast.error("An unexpected error occurred!");
-                    console.log(error);
-                }
-            };
-            getBlogs();
-        }
-    }, [user._id]);
-
-    const deleteBlogHandle = (id) => {
-        setBlogId(id);
-        setBlogModal(true);
-    };
-
-    // Show More button api :
-    const fetchBlogs = async (page = 2) => {
+  useEffect(() => {
+    if (user?.isAdmin) {
+      const getBlogs = async () => {
+        setLoader(true);
         try {
-            const response = await axios.get(
-                `/api/blog/get-all-blogs?${user._id}&page=${page}`
-            );
-            if (response.status === 200) {
-                setUserBlogs([...response.data.blogs, ...userBlogs]);
-                setPage(page + 1);
+          const fetchBlogs = await axios.get(
+            `/api/blog/get-all-blogs?userId=${user._id}`
+          );
 
-                if (response.data.blogs.length === 0) {
-                    setShowMoreButton(false);
-                    toast.success("All blogs have been fetched");
-                }
-            }
+          if (fetchBlogs.status === 200) {
+            setUserBlogs(fetchBlogs.data.blogs);
+            setShowMoreButton(fetchBlogs.data.blogs?.length > 5);
+          }
         } catch (error) {
-            console.log(error.message);
+          toast.error("An unexpected error occurred!");
+          console.log(error);
+        } finally {
+          setLoader(false);
         }
-    };
+      };
+      getBlogs();
+    }
+  }, [user?._id]);
 
-    const showMoreBlogsButton = () => {
-        fetchBlogs(page);
-    };
+  const deleteBlogHandle = (id) => {
+    setBlogId(id);
+    setBlogModal(true);
+  };
 
+  const fetchBlogs = async (page = 2) => {
+    setLoadingMore(true);
+    try {
+      const response = await axios.get(
+        `/api/blog/get-all-blogs?userId=${user._id}&page=${page}`
+      );
+      if (response.status === 200) {
+        setUserBlogs([...userBlogs, ...response.data.blogs]);
+        setPage(page + 1);
+
+        if (response.data.blogs.length === 0) {
+          setShowMoreButton(false);
+          toast.success("All blogs have been fetched");
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const showMoreBlogsButton = () => {
+    fetchBlogs(page);
+  };
+
+  // Not an admin — show a real access message instead of an infinite spinner
+  if (!user?.isAdmin) {
     return (
-        <>
-            {user && user.isAdmin ? (
-                <div
-                    className={`transition-all min-h-screen border  my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"
-                        }`}
-                >
-                    <Table hoverable className="my-5">
-                        <Table.Head
-                            className={`text-base ${theme === "dark"
-                                    ? "text-gray-100 bg-zinc-700 "
-                                    : "text-gray-700 bg-gray-300"
-                                }`}
-                        >
-                            <Table.HeadCell
-                                className={`  md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } items-center justify-center px-5`}
-                            >
-                                Updated on
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` px-5 md:px-2 md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Image
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    }  text-center`}
-                            >
-                                Blog Title
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } px-5`}
-                            >
-                                Category
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } px-5 `}
-                            >
-                                <span>Edit</span>
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={`md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } px-5`}
-                            >
-                                Delete
-                            </Table.HeadCell>
-                        </Table.Head>
-                        {loader ? (
-                            <Table.Body className="">
-                                <Table.Row>
-                                    <Table.Cell className="text-center mt-40">
-                                        <BlogLoader />
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
-                        ) : userBlogs.length === 0 ? (
-                            <Table.Body>
-                                <Table.Row>
-                                    <Table.Cell colSpan="6" className="text-center">
-                                        No blogs found
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
-                        ) : (
-                            userBlogs.map((data, index) => (
-                                <Table.Body key={index}>
-                                    <Table.Row
-                                        className={`text-center text-xs md:text-sm transition-all rounded-md ${theme === "dark"
-                                                ? "hover:bg-gray-800"
-                                                : "hover:bg-gray-100"
-                                            }`}
-                                    >
-                                        {/* Blog Date  */}
-                                        <Table.Cell className="text-xs md:text-sm">
-                                            {new Date(data.updatedAt).toLocaleDateString()}
-                                        </Table.Cell>
-
-                                        {/* Blog Image  */}
-                                        <Table.Cell className="flex justify-center">
-                                            <NavLink
-                                                className="text-center"
-                                                to={`/blog/${data.slug}`}
-                                            >
-                                                <img
-                                                    src={data.blogImgFile}
-                                                    alt="blogImage"
-                                                    className="w-10 text-center rounded-full h-10 md:w-20 md:rounded-md"
-                                                />
-                                            </NavLink>
-                                        </Table.Cell>
-
-                                        {/* Blog Title  */}
-                                        <Table.Cell
-                                            className={`border-l border-r px-5 md:pl-10 text-xs md:text-justify text-left md:text-sm ${theme === "dark" && "text-gray-300 border-gray-700"
-                                                }`}
-                                        >
-                                            <NavLink className="" to={`/blog/${data.slug}`}>
-                                                <p>{data.blogTitle}</p>
-                                            </NavLink>
-                                        </Table.Cell>
-
-                                        {/* Blog Category  */}
-                                        <Table.Cell className="text-xs md:text-sm text-justify pl-5">
-                                            {data.blogCategory}
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            {/* Blog Edit Button  */}
-                                            <NavLink
-                                                to={`/update-blog/${data._id}`}
-                                                className="text-green-500 hover:underline"
-                                            >
-                                                Edit
-                                            </NavLink>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            {/* Blog Delete Button  */}
-                                            <button
-                                                className="text-red-500 hover:underline"
-                                                onClick={() => deleteBlogHandle(data._id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-                            ))
-                        )}
-                    </Table>
-                    {showMoreButton && (
-                        <div className="text-center my-5">
-                            <button
-                                onClick={showMoreBlogsButton}
-                                className={`transition-all active:scale-95 hover:bg-blue-900 py-1 font-semibold text-xs px-2 border rounded-sm ${theme === "dark"
-                                        ? "bg-gray-700 active:bg-gray-800 text-gray-300 border-gray-400"
-                                        : "active:bg-gray-600 active:text-white hover:text-white bg-gray-300 text-gray-800 border-gray-500"
-                                    }`}
-                            >
-                                Show more..
-                            </button>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="min-h-screen flex w-full justify-center items-center">
-                    <span className="flex md:items-center absolute top-72 left-50 md:static md:justify-center">
-                        <BlogLoader />
-                    </span>
-                </div>
-            )}
-
-            <Toaster />
-
-            {/*  Conditionally rendering the popup modal :  */}
-            {blogModal && (
-                <BlogPopupModal
-                    blogModal={blogModal}
-                    setBlogModal={setBlogModal}
-                    blogId={blogId}
-                    setUserBlogs={setUserBlogs}
-                />
-            )}
-        </>
+      <div className="min-h-screen flex flex-col w-full justify-center items-center text-center px-4">
+        <div
+          className={`p-4 rounded-full mb-4 ${
+            isDark ? "bg-zinc-800" : "bg-gray-100"
+          }`}
+        >
+          <HiLockClosed size={28} className="opacity-60" />
+        </div>
+        <h1 className="text-xl font-bold mb-1">Access restricted</h1>
+        <p className="text-sm opacity-60">
+          You need admin access to view this page.
+        </p>
+      </div>
     );
+  }
+
+  const thClass = `text-left py-4 px-5 text-xs font-semibold uppercase tracking-wide ${
+    isDark ? "text-gray-400 bg-zinc-800/60" : "text-gray-500 bg-gray-50"
+  }`;
+
+  return (
+    <>
+      <div className="w-full px-2 md:px-5 py-6">
+        <div className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-[3px] text-indigo-400 mb-1">
+            Admin
+          </p>
+          <h1 className={`text-2xl font-bold ${isDark ? "text-white" : "text-zinc-900"}`}>
+            Manage Blogs
+          </h1>
+        </div>
+
+        <div
+          className={`rounded-2xl border overflow-hidden ${
+            isDark ? "border-zinc-800 bg-zinc-900" : "border-gray-200 bg-white"
+          }`}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className={thClass}>Updated</th>
+                  <th className={thClass}>Post</th>
+                  <th className={thClass}>Category</th>
+                  <th className={`${thClass} text-right`}>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody
+                className={`divide-y ${
+                  isDark ? "divide-zinc-800" : "divide-gray-100"
+                }`}
+              >
+                {loader ? (
+                  <tr>
+                    <td colSpan={4} className="py-16 text-center">
+                      <BlogLoader />
+                    </td>
+                  </tr>
+                ) : userBlogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-16">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <PiSmileySad size={32} className="opacity-40" />
+                        <p className={`font-semibold ${isDark ? "text-white" : "text-zinc-900"}`}>
+                          No blogs yet
+                        </p>
+                        <p className="text-sm opacity-60">
+                          Blogs you publish will show up here.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  userBlogs.map((data, index) => (
+                    <tr
+                      key={data._id || index}
+                      className={`transition-colors ${
+                        isDark ? "hover:bg-zinc-800/50" : "hover:bg-gray-50"
+                      }`}
+                    >
+                      {/* Date */}
+                      <td
+                        className={`py-4 px-5 text-sm whitespace-nowrap ${
+                          isDark ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {new Date(data.updatedAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      {/* Post (thumbnail + title) */}
+                      <td className="py-4 px-5">
+                        <NavLink
+                          to={`/blog/${data.slug}`}
+                          className="flex items-center gap-3 group max-w-sm"
+                        >
+                          <img
+                            src={data.blogImgFile}
+                            alt={data.blogTitle}
+                            className="w-14 h-14 rounded-lg object-cover shrink-0"
+                          />
+                          <p
+                            className={`text-sm font-medium line-clamp-2 transition-colors ${
+                              isDark
+                                ? "text-white group-hover:text-indigo-400"
+                                : "text-zinc-900 group-hover:text-indigo-600"
+                            }`}
+                          >
+                            {data.blogTitle}
+                          </p>
+                        </NavLink>
+                      </td>
+
+                      {/* Category */}
+                      <td className="py-4 px-5">
+                        <span
+                          className={`text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap ${
+                            isDark
+                              ? "border-indigo-400/40 text-indigo-300 bg-indigo-400/10"
+                              : "border-indigo-500/30 text-indigo-600 bg-indigo-50"
+                          }`}
+                        >
+                          {data.blogCategory}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-4 px-5">
+                        <div className="flex items-center justify-end gap-2">
+                          <NavLink
+                            to={`/update-blog/${data._id}`}
+                            title="Edit"
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark
+                                ? "hover:bg-zinc-700 text-gray-300"
+                                : "hover:bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            <HiOutlinePencil size={16} />
+                          </NavLink>
+                          <button
+                            title="Delete"
+                            onClick={() => deleteBlogHandle(data._id)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark
+                                ? "hover:bg-red-500/10 text-red-400"
+                                : "hover:bg-red-50 text-red-500"
+                            }`}
+                          >
+                            <HiOutlineTrash size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {showMoreButton && (
+            <div
+              className={`text-center py-5 border-t ${
+                isDark ? "border-zinc-800" : "border-gray-100"
+              }`}
+            >
+              <button
+                onClick={showMoreBlogsButton}
+                disabled={loadingMore}
+                className={`text-sm font-semibold px-5 py-2 rounded-full border transition-colors disabled:opacity-50 ${
+                  isDark
+                    ? "border-zinc-700 hover:bg-zinc-800"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {loadingMore ? "Loading..." : "Show more"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Toaster />
+
+      {blogModal && (
+        <BlogPopupModal
+          blogModal={blogModal}
+          setBlogModal={setBlogModal}
+          blogId={blogId}
+          setUserBlogs={setUserBlogs}
+        />
+      )}
+    </>
+  );
 };
 
 export default AllBlogs;
