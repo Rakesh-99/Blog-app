@@ -25,7 +25,6 @@ const Header = () => {
   const [toggleNavBtn, setToggleNavBtn] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const [searchBlog, setSearchBlog] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
 
   const dropDownRef = useRef(null);
   const isDark = theme === 'dark';
@@ -50,7 +49,6 @@ const Header = () => {
     const getURL = new URLSearchParams(location.search);
     getURL.set('searchBlog', searchBlog);
     navigate(`/search?${getURL.toString()}`);
-    setSearchFocused(false);
   };
 
   useEffect(() => {
@@ -74,7 +72,6 @@ const Header = () => {
   useEffect(() => {
     setDropDown(false);
     setToggleNavBtn(false);
-    setSearchFocused(false);
   }, [location.pathname]);
 
   const navLinkClass = (path) =>
@@ -88,7 +85,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`relative sticky top-0 z-30 backdrop-blur-md border-b transition-colors ${
+      className={`sticky top-0 z-30 backdrop-blur-md border-b transition-colors ${
         isDark
           ? 'bg-zinc-900/80 border-zinc-800'
           : 'bg-white/80 border-gray-200'
@@ -121,11 +118,7 @@ const Header = () => {
         {/* Desktop search */}
         <form
           onSubmit={submitHandle}
-          className={`hidden md:flex items-center relative transition-all duration-200 ${
-            searchFocused
-              ? 'absolute left-1/2 top-1/2 z-50 w-[min(80vw,36rem)] -translate-x-1/2 -translate-y-1/2'
-              : 'flex-1 max-w-xs'
-          }`}
+          className="hidden md:flex items-center relative flex-1 max-w-xs"
         >
           <IoMdSearch
             size={18}
@@ -134,7 +127,6 @@ const Header = () => {
           <input
             value={searchBlog}
             onChange={(e) => setSearchBlog(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
             type="text"
             placeholder="Search articles..."
             className={`w-full text-sm pl-9 pr-3 py-2 rounded-full border outline-none transition-all focus:ring-2 focus:ring-indigo-400 ${
