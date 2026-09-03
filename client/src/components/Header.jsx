@@ -88,7 +88,9 @@ const Header = () => {
 
   return (
     <nav
-      className={`relative sticky top-0 z-30 backdrop-blur-md border-b transition-colors ${
+      className={`relative sticky top-0 z-30 border-b transition-colors ${
+        searchFocused ? 'backdrop-blur-none' : 'backdrop-blur-md'
+      } ${
         isDark
           ? 'bg-zinc-900/80 border-zinc-800'
           : 'bg-white/80 border-gray-200'
