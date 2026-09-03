@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import QuillBetterTable from 'quill-better-table';
+import 'quill-better-table/dist/quill-better-table.css';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { firebaseStorage } from '../firebase/firebaseConfig';
 import { addBlogStart, addBlogFailure, addBlogSuccess } from '../features/blogSlice';
@@ -9,6 +11,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
+Quill.register({ 'modules/better-table': QuillBetterTable }, true);
 
 
 
@@ -76,11 +80,20 @@ const CreateBlog = () => {
                     ['blockquote', 'code-block'],
                     [{ list: 'ordered' }, { list: 'bullet' }],
                     ['link', 'image'],
+                    ['better-table'],
                     ['clean'],
                 ],
                 handlers: {
                     image: imageHandler,
+                    'better-table': function () {
+                        this.quill.getModule('better-table').insertTable(3, 3);
+                    },
                 },
+            },
+            table: false,
+            'better-table': {},
+            keyboard: {
+                bindings: QuillBetterTable.keyboardBindings,
             },
         }),
         [imageHandler]
