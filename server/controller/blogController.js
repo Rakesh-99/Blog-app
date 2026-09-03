@@ -18,7 +18,9 @@ export const getAllBlogs = asyncHandler(async (req, res, next) => {
 
     const filterBlogs = {
         ...(req.query.userId && { userId: req.query.userId }),
-        ...(req.query.category && { blogCategory: req.query.category }),
+        ...(req.query.category && req.query.category !== 'All' && {
+            blogCategory: req.query.category
+        }),
         ...(req.query.slug && { slug: req.query.slug }),
         ...(req.query.blogId && { _id: req.query.blogId }),
         ...(req.query.searchBlog && {
