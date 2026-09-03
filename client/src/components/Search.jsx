@@ -7,6 +7,16 @@ import { HiOutlineAdjustmentsHorizontal } from 'react-icons/hi2';
 import BlogLoader from '../assests/blogSpinner/BlogLoader';
 import NodataImg from '../assests/No data.png';
 
+const getBlogDescription = (blogBody = '') =>
+  blogBody.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const formatBlogDate = (date) =>
+  new Date(date).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
 const categories = [
   'uncategorized',
   'Java',
@@ -204,32 +214,36 @@ const Search = () => {
                 {blogs.map((value, index) => (
                   <Link key={value._id || index} to={`/blog/${value?.slug}`}>
                     <div
-                      className={`group h-full rounded-xl border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden ${
+                        className={`group h-full rounded-2xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ${
                         isDark
-                          ? 'border-zinc-700 bg-zinc-900'
-                          : 'border-gray-200 bg-white'
+                            ? 'border-zinc-700/80 bg-zinc-900/90 hover:border-zinc-600'
+                            : 'border-zinc-200 bg-white hover:border-zinc-300'
                       }`}
                     >
-                      <div className="overflow-hidden aspect-[16/10]">
-                        <img
-                          src={value?.blogImgFile}
-                          alt={value?.blogTitle}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="p-5 flex flex-col gap-3">
+                      <div className="p-6 flex flex-col gap-4">
                         <span
-                          className={`text-[11px] w-fit font-semibold uppercase tracking-wide px-3 py-1 rounded-full ${
+                          className={`text-[10px] w-fit font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-full border ${
                             isDark
-                              ? 'bg-indigo-400/10 text-indigo-300'
-                              : 'bg-indigo-50 text-indigo-600'
+                              ? 'border-indigo-400/30 bg-indigo-400/10 text-indigo-300'
+                              : 'border-indigo-200 bg-indigo-50 text-indigo-600'
                           }`}
                         >
                           {value?.blogCategory}
                         </span>
-                        <p className="text-base font-semibold leading-snug line-clamp-2 group-hover:text-indigo-400 transition-colors">
+                        <p className="text-lg font-bold leading-snug line-clamp-2 group-hover:text-indigo-400 transition-colors">
                           {value?.blogTitle}
                         </p>
+                        <p className="text-sm leading-6 opacity-65 line-clamp-3 min-h-[4.5rem]">
+                          {getBlogDescription(value?.blogBody)}
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-2 text-[11px] opacity-60 border-t border-current/10">
+                          <span className="rounded-full bg-current/5 px-2.5 py-1">
+                            Created {formatBlogDate(value?.createdAt)}
+                          </span>
+                          <span className="rounded-full bg-current/5 px-2.5 py-1">
+                            Updated {formatBlogDate(value?.updatedAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </Link>
