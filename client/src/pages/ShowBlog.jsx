@@ -145,7 +145,8 @@ const ShowBlog = () => {
           </span>
         </div>
 
-        {/* Cover image */}
+        {/* Cover image temporarily hidden */}
+        {/*
         <div className="mb-10 rounded-xl overflow-hidden">
           <img
             src={blog.blogImgFile}
@@ -153,6 +154,7 @@ const ShowBlog = () => {
             className="w-full max-h-[480px] object-cover"
           />
         </div>
+        */}
 
         {/* Body */}
         <div
