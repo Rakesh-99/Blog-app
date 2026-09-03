@@ -36,7 +36,7 @@ const Dashboard = () => {
                 {/* DashTab */}
                 <div className={`${tab === 'dash' && 'flex w-full'}`}>
                     {tab === 'dash' && <DashBaordComp />}
-                </div>
+            </div>
 
                 {/* Profile */}
                 <div className={`${tab === 'profile' && 'flex justify-center w-full'}`}>
