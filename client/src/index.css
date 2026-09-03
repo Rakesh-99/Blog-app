@@ -69,3 +69,27 @@
   font-size: 0.85em;
   font-weight: 500;
 }
+
+.blog-content table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+}
+
+.blog-content th,
+.blog-content td {
+  border: 1px solid rgba(156, 163, 175, 0.45);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+}
+
+.blog-content th {
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.ql-toolbar .ql-better-table::after {
+  content: 'Table';
+  font-size: 0.75rem;
+  font-weight: 600;
+}
