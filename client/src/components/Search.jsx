@@ -63,6 +63,7 @@ const Search = () => {
     }));
 
     const fetchBlogPosts = async () => {
+      if (!URL.has('limit')) URL.set('limit', '100');
       const stringConversionURL = URL.toString();
       try {
         setLoading(true);

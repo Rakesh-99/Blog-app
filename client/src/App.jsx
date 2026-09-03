@@ -44,6 +44,7 @@ const App = () => {
                                 <Route path='/login' element={<Login />} />
                                 <Route path='/blog/:blogSlug' element={<ShowBlog />} />
                                 <Route path='/search' element={<Search />} />
+                                <Route path='/blogs' element={<Search />} />
                                 <Route path='/forget-password' element={<ForgetPassword />} />
                                 <Route element={<PrivateRoute />}>
                                     <Route path='/dashboard' element={<Dashboard />} />
