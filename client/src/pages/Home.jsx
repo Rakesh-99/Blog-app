@@ -7,6 +7,16 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 
+const getBlogDescription = (blogBody = '') =>
+  blogBody.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const formatBlogDate = (date) =>
+  new Date(date).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
 const Home = () => {
   const [recentBlogs, setRecentBlogs] = useState([]);
   const { theme } = useSelector((state) => state.themeSliceApp);
@@ -138,25 +148,41 @@ const Home = () => {
               >
                 <Link to={`/blog/${value.slug}`}>
                   <div
-                    className={`group h-full rounded-md border  shadow-sm  transition-all duration-100 overflow-hidden ${
-                      theme === 'dark' ? 'border-gray-700' : 'border-gray-300'
+                    className={`group h-full rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden ${
+                      theme === 'dark'
+                        ? 'border-zinc-700/80 bg-zinc-900/90 hover:border-zinc-600'
+                        : 'border-zinc-200 bg-white hover:border-zinc-300'
                     }`}
                   >
-                    <div className="overflow-hidden">
-                      <img
-                        src={value.blogImgFile}
-                        alt={value.blogTitle}
-                        className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 "
-                      />
-                    </div>
-
-                    <div className="p-5 flex flex-col gap-3">
-                      <p className="text-lg font-semibold line-clamp-2 group-hover:text-indigo-400 transition">
+                    <div className="p-6 flex flex-col gap-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-full border ${
+                            theme === 'dark'
+                              ? 'border-indigo-400/30 bg-indigo-400/10 text-indigo-300'
+                              : 'border-indigo-200 bg-indigo-50 text-indigo-600'
+                          }`}
+                        >
+                          {value.blogCategory}
+                        </span>
+                        <span className="text-[11px] uppercase tracking-wide opacity-45">
+                          Blog
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold leading-snug line-clamp-2 group-hover:text-indigo-400 transition-colors">
                         {value.blogTitle}
                       </p>
-                      <span className="text-xs w-fit border px-4 py-1 rounded-full opacity-80">
-                        {value.blogCategory}
-                      </span>
+                      <p className="text-sm leading-6 opacity-65 line-clamp-3 min-h-[4.5rem]">
+                        {getBlogDescription(value.blogBody)}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-2 text-[11px] opacity-60 border-t border-current/10">
+                        <span className="rounded-full bg-current/5 px-2.5 py-1">
+                          Created {formatBlogDate(value.createdAt)}
+                        </span>
+                        <span className="rounded-full bg-current/5 px-2.5 py-1">
+                          Updated {formatBlogDate(value.updatedAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>
