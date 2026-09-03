@@ -18,6 +18,7 @@ const formatBlogDate = (date) =>
   });
 
 const categories = [
+  'All',
   'uncategorized',
   'Java',
   'Javascript',
@@ -40,7 +41,7 @@ const Search = () => {
   const [formData, setFormData] = useState({
     searchblog: '',
     sortblog: 'desc',
-    blogcategory: 'uncategorized',
+    blogcategory: 'All',
   });
 
   const inputChangeHandle = (e) => {
@@ -56,9 +57,9 @@ const Search = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      searchblog: getBlog || prevFormData.searchblog,
-      blogcategory: getBlogCategory || prevFormData.blogcategory,
-      sortblog: sortBlog || prevFormData.sortblog,
+      searchblog: getBlog || '',
+      blogcategory: getBlogCategory || 'All',
+      sortblog: sortBlog || 'desc',
     }));
 
     const fetchBlogPosts = async () => {
@@ -87,8 +88,17 @@ const Search = () => {
     e.preventDefault();
     const URL = new URLSearchParams(location.search);
     URL.set('sort', formData.sortblog);
-    URL.set('searchBlog', formData.searchblog);
-    URL.set('category', formData.blogcategory);
+    if (formData.searchblog) {
+      URL.set('searchBlog', formData.searchblog);
+    } else {
+      URL.delete('searchBlog');
+    }
+    if (formData.blogcategory === 'All') {
+      URL.delete('category');
+    } else {
+      URL.set('category', formData.blogcategory);
+    }
+    URL.delete('page');
     navigate(`/search?${URL.toString()}`);
     setShowFilters(false);
   };
