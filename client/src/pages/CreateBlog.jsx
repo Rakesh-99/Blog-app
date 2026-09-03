@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactQuill, { Quill } from 'react-quill';
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import QuillBetterTable from 'quill-better-table';
 import 'quill-better-table/dist/quill-better-table.css';
@@ -12,7 +12,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-Quill.register({ 'modules/better-table': QuillBetterTable }, true);
+ReactQuill.Quill.register({ 'modules/better-table': QuillBetterTable }, true);
 
 
 
