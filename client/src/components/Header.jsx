@@ -123,7 +123,7 @@ const Header = () => {
           onSubmit={submitHandle}
           className={`hidden md:flex items-center relative transition-all duration-200 ${
             searchFocused
-              ? 'absolute left-1/2 top-1/2 z-50 w-[min(80vw,36rem)] -translate-x-1/2 -translate-y-1/2'
+              ? 'fixed inset-0 z-50 justify-center bg-black/30 backdrop-blur-sm'
               : 'flex-1 max-w-xs'
           }`}
         >
@@ -137,7 +137,9 @@ const Header = () => {
             onFocus={() => setSearchFocused(true)}
             type="text"
             placeholder="Search articles..."
-            className={`w-full text-sm pl-9 pr-3 py-2 rounded-full border outline-none transition-all focus:ring-2 focus:ring-indigo-400 ${
+            className={`${
+              searchFocused ? 'w-[min(80vw,36rem)] shadow-2xl' : 'w-full'
+            } text-sm pl-9 pr-3 py-2 rounded-full border outline-none transition-all focus:ring-2 focus:ring-indigo-400 ${
               isDark
                 ? 'bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500'
                 : 'bg-gray-100 border-transparent placeholder:text-gray-400'
